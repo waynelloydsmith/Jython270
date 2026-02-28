@@ -1,0 +1,40 @@
+==========================
+Known problems
+==========================
+
+You must use the keyboard not the mouse to select methods.  (Due to focus problems.)
+
+Builtin types don't work like they do in PyCrust.  This is because they have a null __doc__ string in Jython.
+
+Sometimes introspect.getAllAttributeNames goes into an infine recursive loop
+
+python.security.respectJavaAccessibility must be set to true in Jython's registry (this is the default setting)
+
+--Please submit any new issues http://code.google.com/p/jythonconsole/issues/list 
+
+
+Foot Note: from waynelloydsmith@gmx.com
+the loss of sys.ps1 and sys.ps2 in Jython 2.7.0 caused a lot of problems with this code. fixed this sys.ps1 = ">>> " sys.ps2 = "... "
+the code works now but you'll find some >>> hacks in a few places.
+the """ and ''' to comment out many lines doesn't work
+use () to enter long commands or {} or []
+the \ (back slash) doesn't work for continuing a long line .. maybe a bug
+
+There is a lot of Jython code in this project so its a great project to learn jython on.
+The debug cycle with moneydance is 
+1-change the console.py file 
+2-shutdown moneydance 
+3-restart moneydance 
+4-open the help->console 
+5-clear the help->console screen 
+6-start the jython270 moneydance->extension
+7-try your modifoed console.py out.
+you generally don't have to recompile the java code and make a new extension
+the java code is in ... if you need to change it
+/mnt/DATA/home/wayne/source/moneydanc…moneydance/modules/features/jython270/main.java
+compile it with
+ant jython270
+the python code is in
+/opt/moneydance/scripts/Jython270
+
+the stderr device is the moneydance->help->console

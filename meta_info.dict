@@ -1,0 +1,9 @@
+{
+  "vendor" = "waynelloydsmith"
+  "module_build" = "5"
+  "minbuild" = "1000"
+  "vendor.url" = "http://your.url.here/"
+  "module_name" = "jython270"
+  "module_desc" = "<html><body><title>Jython270 Console</title><p> Jython 2.7.0 Console.</p></body></html>"
+  "desc" = "Jython270 Console. jythonconsole-0.0.7x ported to moneydance 2022. Mostly written in jython. Jython Interactive Interpreter"
+}

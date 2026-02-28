@@ -1,0 +1,112 @@
+"""
+ history.py - Handles the History of the jython console
+ Copyright (C) 2001 Carlos Quiroz
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+"""
+# this Runnable isn't being ran from what I can see
+# at least not the way its meant to be used
+# it uses a shutdown hook
+#        Runtime.getRuntime().addShutdownHook(Thread(self))
+# which gets java JVM to run the run() at shutdown
+# the list is saved to the file and reloaded at startup
+# so the file only shows you what was saved the last time you shutdown (moneydance ?? , console ??? )
+# debug messages don't show up in run or save because the console is dead
+# WAS DIFFICLT to figure this out
+# it needs to be rewritten
+
+
+from java.lang import System, Runtime
+from java.lang import Runnable, Thread
+import sys
+
+class History(Runnable):
+    """
+    Command line history
+    """
+    DEBUG2 = True
+
+    default_history_file = System.getProperty("user.home") + '/.jythonconsole.history' # this file collects garbage too
+    MAX_SIZE = 200
+
+    def __init__(self, console, history_file=default_history_file):
+        if self.DEBUG2 == True: sys.stderr.write("history __init__"+ "\n")
+        Runtime.getRuntime().addShutdownHook(Thread(self))        
+
+        self.history_file = history_file
+        self.history = [] # its a list
+        self.loadHistory()            
+          
+        self.console = console
+        self.index = len(self.history) - 1
+        self.last = ""
+
+    def append(self, line): # this is called with text every time you hit enter but its just a list
+        if self.DEBUG2 == True: sys.stderr.write("history append:"+ str(line) + "\n")
+        if line == None or line == '\n' or len(line) == 0:
+            return
+
+        if line != self.last: # avoids duplicates
+            self.last = line
+            line = line.lstrip('>')                # dec 28 2025 don't want >>> in history I think
+            self.history.append(line)              # history is a GD list ??
+            self.history.flush()                   # you can't flush a list
+            
+        self.index = len(self.history) - 1
+
+    def historyUp(self, event=None):
+        if self.DEBUG2 == True: sys.stderr.write("historyUP"+ "\n")
+        if len(self.history) > 0 and self.console.inLastLine():
+###            self.console.replaceRow(">>>" + self.history[self.index])                           ## dec 28 2025
+            self.console.replaceRow( self.history[self.index])
+            self.index = max(self.index - 1, 0)
+
+    def historyDown(self, event=None):
+        if self.DEBUG2 == True: sys.stderr.write("historyDown"+ "\n")
+        if len(self.history) > 0 and self.console.inLastLine():
+            if self.index == len(self.history) - 1:
+#                self.console.replaceRow(">>>")                        ## dec 26 2025
+                self.console.replaceRow("")                            ## was commented out
+            else:
+                self.index = self.index + 1
+####                self.console.replaceRow(">>>" + self.history[self.index])    # dec 28 2025
+                self.console.replaceRow(self.history[self.index])
+
+    def loadHistory(self): # this is called by __init__
+        if self.DEBUG2 == True: sys.stderr.write("loadhistory"+ "\n")
+##        with open(self.history_file, 'w'): # this will wipe out the file
+##            pass
+# this takes all the lines in the file and puts them in list
+        try:
+            f = open(self.history_file)
+            for line in f.readlines():
+                self.history.append(line[:-1])
+            f.close()
+        except:
+            sys.stderr.write("history loadhistory FAILED"+ "\n") # this is a big deal
+            pass
+        
+    def saveHistory(self):                                               # never gets called
+        # this wipes out the file and dumps the list into the new empty file ????????????????
+        if self.DEBUG2 == True: sys.stderr.write("savehistory"+ "\n")
+        f = open(self.history_file, 'w') # this will wipe out the file
+        for item in self.history[-self.MAX_SIZE:]:
+            f.write("%s\n" % item)
+        f.flush()
+        f.close()
+        
+    def run(self):  # I think this is being called when the program shuts down ??????????????
+        if self.DEBUG2 == True: sys.stderr.write("history run" + "\n")
+        self.saveHistory()

@@ -1,0 +1,1 @@
+sys.path.append("/home/wayne/source/jythonconsole-0.0.7x/") # don't forget the stupid "/" on the end or it won't import xxx.py files
